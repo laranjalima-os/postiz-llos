@@ -1,0 +1,55 @@
+name: Build Laranja Lima OS Image
+
+# Builda a imagem custom (rebrand Laranja Lima OS sobre Postiz v2.21.8) e publica
+# em ghcr.io/laranjalima-os/postiz-llos:llos-2.21.8 (amd64, igual ao VPS de produção).
+# Paridade de build com o upstream: mesmo Dockerfile.dev, mesmas flags.
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - llos-2.21.8
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE: ghcr.io/laranjalima-os/postiz-llos
+  TAG: llos-2.21.8
+  # Versão upstream do Postiz em que este fork se baseia (exibida no rodapé "Powered by Postiz").
+  UPSTREAM_VERSION: v2.21.8
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: false
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and Push Image (amd64)
+        run: |
+          docker buildx build --platform linux/amd64 \
+            -f Dockerfile.dev \
+            -t ${IMAGE}:${TAG} \
+            --build-arg NEXT_PUBLIC_VERSION=${UPSTREAM_VERSION} \
+            --pull \
+            --no-cache \
+            --provenance=false --sbom=false \
+            --output "type=registry,name=${IMAGE}:${TAG}" .
+
+      - name: Show pushed digest
+        run: docker buildx imagetools inspect ${IMAGE}:${TAG}
