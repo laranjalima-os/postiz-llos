@@ -3,7 +3,6 @@ import { getT } from '@gitroom/react/translation/get.translation.service.backend
 export const dynamic = 'force-dynamic';
 import { ReactNode } from 'react';
 import loadDynamic from 'next/dynamic';
-import { TestimonialComponent } from '@gitroom/frontend/components/auth/testimonial.component';
 import { LogoTextComponent } from '@gitroom/frontend/components/ui/logo-text.component';
 const ReturnUrlComponent = loadDynamic(() => import('./return.url.component'));
 export default async function AuthLayout({
@@ -23,13 +22,12 @@ export default async function AuthLayout({
           <div className="flex">{children}</div>
         </div>
       </div>
-      <div className="text-[36px] flex-1 pt-[88px] hidden lg:flex flex-col items-center">
+      <div className="text-[36px] flex-1 hidden lg:flex flex-col items-center justify-center">
         <div className="text-center">
           Grow your social presence
           <br />
           with <span className="text-[42px] text-[#FC69FF]">Laranja Lima OS</span>
         </div>
-        <TestimonialComponent />
       </div>
     </div>
   );
